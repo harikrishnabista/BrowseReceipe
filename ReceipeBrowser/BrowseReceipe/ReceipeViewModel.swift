@@ -30,12 +30,8 @@ class ReceipeViewModel {
     }
     
     func fetchCategoryList(completion: @escaping (Bool,Error?) -> Void) {
-        guard let url = URL(string: "https://www.themealdb.com/api/json/v1/1/categories.php") else {
-            completion(false,nil)
-            return
-        }
-        
-        ApiCaller().callApi(responseType: CategoryList.self, url: url) { result in
+        let apiCaller = DefaultApiCaller<CategoryList>()
+        apiCaller.callApi(endPoint: "json/v1/1/categories.php") { (result) in
             switch result {
             case .success(let categoryList):
                 self.categoryList = categoryList
@@ -47,13 +43,13 @@ class ReceipeViewModel {
     }
     
     func fetchMealListBy(completion: @escaping (Bool,Error?) -> Void) {
-        guard let selectedCategory = selectedCategory,
-            let mealSummaryListUrl = URL(string: "https://www.themealdb.com/api/json/v1/1/filter.php?c=\(selectedCategory)") else {
-            completion(false, nil)
-            return
-        }
+        let apiCaller = DefaultApiCaller<MealSummaryList>()
         
-        ApiCaller().callApi(responseType: MealSummaryList.self, url: mealSummaryListUrl) { result in
+        apiCaller.queryItems = [
+            URLQueryItem(name: "c", value: selectedCategory)
+        ]
+        
+        apiCaller.callApi(endPoint: "json/v1/1/filter.php") { (result) in
             switch result {
             case .success(let mealSummaryList):
                 self.mealSummaryList = mealSummaryList

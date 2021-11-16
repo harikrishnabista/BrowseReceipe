@@ -27,13 +27,14 @@ class MealDetailsViewModel {
         return ingredientList
     }
     
-    func fetchMealDetails(mealId: String, completion: @escaping (Bool,Error?) -> Void) {
-        guard let mealDetailsUrl = URL(string: "https://www.themealdb.com/api/json/v1/1/lookup.php?i=\(mealId)") else {
-            completion(false, nil)
-            return
-        }
+    func fetchMealDetails(mealId: String, completion: @escaping (Bool, Error?) -> Void) {
+        let apiCaller = DefaultApiCaller<MealDetails>()
         
-        ApiCaller().callApi(responseType: MealDetails.self, url: mealDetailsUrl) { result in
+        apiCaller.queryItems = [
+            URLQueryItem(name: "i", value: mealId)
+        ]
+        
+        apiCaller.callApi(endPoint: "json/v1/1/lookup.php") { (result) in
             switch result {
             case .success(let mealDetails):
                 self.mealDetails = mealDetails
